@@ -5,7 +5,7 @@ import { Button } from "react-native-paper";
 
 export default function Start() {
   const navigate = () => {
-    router.navigate("/Home");
+    router.replace("/Home");
   }
   return (
     <View style={startStyle.container}>
@@ -15,7 +15,7 @@ export default function Start() {
         </Text>
       </View>
       <View style={startStyle.bodyContainer}>
-        <Button onPress={navigate} mode="elevated">
+        <Button textColor="#000" style={startStyle.buttonStyle} onPress={navigate} mode="elevated">
           Entrar
         </Button>
       </View>

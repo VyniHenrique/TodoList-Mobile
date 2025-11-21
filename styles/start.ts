@@ -22,5 +22,9 @@ export const startStyle = StyleSheet.create({
 	bodyContainer: {
 		flex: 1,
 		justifyContent: "center",
+	},
+
+	buttonStyle: {
+		backgroundColor: "#DFE9F5"
 	}
 })
