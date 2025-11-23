@@ -1,0 +1,1 @@
+export const API_URl_POST = `http:${process.env.EXPO_PUBLIC_IP_LOCAL}:8080/todoItem`;

@@ -2,12 +2,17 @@ import React from "react";
 import { homeStyle } from "@/styles/home";
 import { ScrollView, View } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
-import { DatePickerInput, registerTranslation, pt } from "react-native-paper-dates";
+import {
+  DatePickerInput,
+  registerTranslation,
+  pt,
+} from "react-native-paper-dates";
 import TodoItem from "@/components/TodoItem";
 import { Controller, useForm } from "react-hook-form";
 import TextInputControlled from "@/components/TextInputControlled";
+import { API_URl_POST } from "@/routes/routes";
 
-registerTranslation('pt', pt);
+registerTranslation("pt", pt);
 
 type inputs = {
   title: string;
@@ -24,7 +29,24 @@ export default function Home({ timeLimit, title, description }: inputs) {
     },
   });
 
-  const onSubmit = (data: inputs) => {
+  const onSubmit = async (data: inputs) => {
+    try {
+      const response = await fetch(API_URl_POST, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao cadastrar item.");
+      } else {
+        console.log("passou")
+      }
+    } catch (error) {
+      console.log(error);
+    }
     console.log(data);
   };
 
