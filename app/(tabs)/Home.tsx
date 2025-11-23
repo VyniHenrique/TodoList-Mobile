@@ -1,6 +1,6 @@
 import React from "react";
 import { homeStyle } from "@/styles/home";
-import { ScrollView, View } from "react-native";
+import { FlatList, ScrollView, View } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 import {
   DatePickerInput,
@@ -19,6 +19,27 @@ type inputs = {
   description: string;
   timeLimit: Date;
 };
+
+const DATA = [
+  {
+    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+    title: 'First Item',
+    description: 'Descricao 1',
+    timeLimit: "2020-11-10"
+  },
+  {
+    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+    title: 'Second Item',
+    description: 'Descricao 2',
+    timeLimit: "2020-11-10"
+  },
+  {
+    id: '58694a0f-3da1-471f-bd96-145571e29d72',
+    title: 'Third Item',
+    description: 'Descricao 3',
+    timeLimit: "2020-11-10"
+  },
+];
 
 export default function Home({ timeLimit, title, description }: inputs) {
   const { control, handleSubmit } = useForm({
@@ -99,8 +120,13 @@ export default function Home({ timeLimit, title, description }: inputs) {
         <Card style={homeStyle.cardRecentsRegisters}>
           <Text style={homeStyle.title}>Ultimos registros</Text>
           <Card.Content>
-            {/* Criar componente */}
-            <TodoItem />
+            <FlatList 
+              scrollEnabled={false}
+              data={DATA}
+              renderItem={ ({item}) => <TodoItem id={item.id} description={item.description} timeLimit={item.timeLimit} title={item.title}/>}
+              keyExtractor={item => item.id}
+            
+            />
           </Card.Content>
         </Card>
       </ScrollView>

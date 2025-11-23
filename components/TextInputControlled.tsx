@@ -1,4 +1,4 @@
-import { homeStyle } from "@/styles/home";
+import { textInputControlledStyle } from "@/styles/textInputControlled";
 import { Control, useController } from "react-hook-form";
 import { TextInput } from "react-native-paper";
 
@@ -19,7 +19,7 @@ export default function TextInputControlled({ name, control, label }: Props) {
   return (
     <TextInput
       activeOutlineColor="#0070f8"
-      style={homeStyle.textInputStyle}
+      style={textInputControlledStyle.textInputStyle}
       mode="outlined"
       value={value}
       onBlur={onBlur}

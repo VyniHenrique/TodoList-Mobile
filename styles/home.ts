@@ -35,6 +35,8 @@ export const homeStyle = StyleSheet.create({
 
 	cardRecentsRegisters: {
 		marginTop: 40,
-		paddingVertical: 30
+		marginBottom: 20,
+		marginHorizontal: 10,
+		paddingVertical: 15
 	}
 })
