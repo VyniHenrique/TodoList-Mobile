@@ -3,7 +3,9 @@ import { StyleSheet } from "react-native"
 export const todoItemStyle = StyleSheet.create({
 
 	card: {
-		marginVertical: 10
+		marginVertical: 10,
+		backgroundColor: "#d4e2f7ff",
+		marginHorizontal: 5
 	},
 
 	title: {
@@ -14,7 +16,8 @@ export const todoItemStyle = StyleSheet.create({
 
 	description: {
 		marginBottom: 20,
-		marginStart: 15
+		marginStart: 15,
+		marginEnd: 15
 	},
 
 	timeLimit: {

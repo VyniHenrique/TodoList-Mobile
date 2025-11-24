@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { homeStyle } from "@/styles/home";
 import { FlatList, ScrollView, View } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
@@ -10,7 +10,7 @@ import {
 import TodoItem from "@/components/TodoItem";
 import { Controller, useForm } from "react-hook-form";
 import TextInputControlled from "@/components/TextInputControlled";
-import { API_URl_POST } from "@/routes/routes";
+import { API_URl_FIND_ALL_TODO_ITEM, API_URl_POST } from "@/routes/routes";
 
 registerTranslation("pt", pt);
 
@@ -20,29 +20,23 @@ type inputs = {
   timeLimit: Date;
 };
 
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-    description: 'Descricao 1',
-    timeLimit: "2020-11-10"
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-    description: 'Descricao 2',
-    timeLimit: "2020-11-10"
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-    description: 'Descricao 3',
-    timeLimit: "2020-11-10"
-  },
-];
+interface TaskResponse {
+  id: string;
+  title: string;
+  description: string;
+  timeLimit: string;
+}
+
 
 export default function Home({ timeLimit, title, description }: inputs) {
-  const { control, handleSubmit } = useForm({
+
+  useEffect( () => {
+    handleGetAllTasks();
+  }, []);
+
+  const [tasks, setTasks] = useState<TaskResponse[]>([]);
+
+  const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       title,
       description,
@@ -63,13 +57,31 @@ export default function Home({ timeLimit, title, description }: inputs) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Falha ao cadastrar item.");
       } else {
-        console.log("passou")
+
+        await handleGetAllTasks();
+        reset();
+        console.log("passou");
       }
     } catch (error) {
       console.log(error);
     }
     console.log(data);
   };
+
+
+
+  const handleGetAllTasks = async () => {
+    try {
+      const response = await fetch(API_URl_FIND_ALL_TODO_ITEM);
+      const data = await response.json();
+      setTasks(data);
+      console.log("passou");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+
 
   return (
     <View style={homeStyle.container}>
@@ -122,8 +134,8 @@ export default function Home({ timeLimit, title, description }: inputs) {
           <Card.Content>
             <FlatList 
               scrollEnabled={false}
-              data={DATA}
-              renderItem={ ({item}) => <TodoItem id={item.id} description={item.description} timeLimit={item.timeLimit} title={item.title}/>}
+              data={tasks}
+              renderItem={ ({item}) => <TodoItem onDeleteSuccess={handleGetAllTasks} id={item.id} description={item.description} timeLimit={new Date(item.timeLimit)} title={item.title}/>}
               keyExtractor={item => item.id}
             
             />
