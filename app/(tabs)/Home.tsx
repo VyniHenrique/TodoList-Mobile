@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { homeStyle } from "@/styles/home";
-import { FlatList, ScrollView, View } from "react-native";
+import { FlatList, ScrollView, View, Modal } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 import {
   DatePickerInput,
@@ -10,7 +10,11 @@ import {
 import TodoItem from "@/components/TodoItem";
 import { Controller, useForm } from "react-hook-form";
 import TextInputControlled from "@/components/TextInputControlled";
-import { API_URl_FIND_ALL_TODO_ITEM, API_URl_POST } from "@/routes/routes";
+import {
+  API_URl_FIND_ALL_TODO_ITEM,
+  API_URl_POST,
+  API_URl_UPDATE,
+} from "@/routes/routes";
 
 registerTranslation("pt", pt);
 
@@ -27,10 +31,28 @@ interface TaskResponse {
   timeLimit: string;
 }
 
-
 export default function Home({ timeLimit, title, description }: inputs) {
+  const [idToUpdate, setIdToUpdate] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
 
-  useEffect( () => {
+  const handleOpenModal = (task: TaskResponse) => {
+    setIdToUpdate(task.id);
+    reset({
+      title: task.title,
+      description: task.description,
+      timeLimit: new Date(task.timeLimit),
+    });
+
+    setVisible(true);
+  };
+  const hideModal = () => {
+    
+    setVisible(false);
+    setIdToUpdate(null);
+    reset({ title: "", description: "", timeLimit: new Date() });
+  };
+
+  useEffect(() => {
     handleGetAllTasks();
   }, []);
 
@@ -57,7 +79,6 @@ export default function Home({ timeLimit, title, description }: inputs) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Falha ao cadastrar item.");
       } else {
-
         await handleGetAllTasks();
         reset();
         console.log("passou");
@@ -68,8 +89,6 @@ export default function Home({ timeLimit, title, description }: inputs) {
     console.log(data);
   };
 
-
-
   const handleGetAllTasks = async () => {
     try {
       const response = await fetch(API_URl_FIND_ALL_TODO_ITEM);
@@ -79,12 +98,93 @@ export default function Home({ timeLimit, title, description }: inputs) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
+  const handleUpdate = async (id: string, data: inputs) => {
+    try {
+      const response = await fetch(API_URl_UPDATE(id), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao atualizar item.");
+      } else {
+        await handleGetAllTasks();
+        reset();
+        console.log("passou aqui");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  const onUpdateSubmit = (data: inputs) => {
+    if(idToUpdate){
+      handleUpdate(idToUpdate, data);
+      hideModal();
+    }
+  };
 
   return (
     <View style={homeStyle.container}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        onDismiss={hideModal}
+        visible={visible}
+        onRequestClose={hideModal}
+      >
+        <View style={homeStyle.modalOverlay}>
+          <View style={homeStyle.modalContent}>
+            <Text style={{ textAlign: "center" }} variant="titleLarge">
+              Atualize a tarefa
+            </Text>
+            <TextInputControlled
+              style={homeStyle.textInputControledTitle}
+              control={control}
+              label="Título"
+              name="title"
+            />
+            <TextInputControlled
+              style={homeStyle.textInputControledDescription}
+              control={control}
+              label="Descrição"
+              name="description"
+            />
+
+            <Controller
+              name="timeLimit"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <DatePickerInput
+                  onBlur={onBlur}
+                  animationType="fade"
+                  presentationStyle="pageSheet"
+                  style={homeStyle.textInputDatePickerModal}
+                  label={"Prazo máximo"}
+                  mode="outlined"
+                  value={value}
+                  locale="pt"
+                  inputMode="start"
+                  onChange={onChange}
+                />
+              )}
+            />
+
+            <Button
+              style={homeStyle.buttonRegisterNewTodoItem}
+              mode="contained"
+              onPress={handleSubmit(onUpdateSubmit)}
+            >
+              Atualizar
+            </Button>
+          </View>
+        </View>
+      </Modal>
       <ScrollView>
         <Card style={homeStyle.cardRegisterNewActivity}>
           <Text style={homeStyle.title}>Registre uma nova atividade</Text>
@@ -132,12 +232,20 @@ export default function Home({ timeLimit, title, description }: inputs) {
         <Card style={homeStyle.cardRecentsRegisters}>
           <Text style={homeStyle.title}>Ultimos registros</Text>
           <Card.Content>
-            <FlatList 
+            <FlatList
               scrollEnabled={false}
               data={tasks}
-              renderItem={ ({item}) => <TodoItem onDeleteSuccess={handleGetAllTasks} id={item.id} description={item.description} timeLimit={new Date(item.timeLimit)} title={item.title}/>}
-              keyExtractor={item => item.id}
-            
+              renderItem={({ item }) => (
+                <TodoItem
+                  showModal={() => handleOpenModal(item)}
+                  onDeleteSuccess={handleGetAllTasks}
+                  id={item.id}
+                  description={item.description}
+                  timeLimit={new Date(item.timeLimit)}
+                  title={item.title}
+                />
+              )}
+              keyExtractor={(item) => item.id}
             />
           </Card.Content>
         </Card>
